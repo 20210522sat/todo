@@ -30,25 +30,27 @@ input[type=text]{border:1px solid #ddd;border-radius:8px;font-size:13px;outline:
 input[type=text]:focus{border-color:#999}
 .name-input{height:30px;padding:0 10px;width:130px}
 
-.group-note-wrap{margin-top:10px;border-top:1px solid #f0f0ee;padding-top:10px}
-.group-note-label{font-size:11px;color:#bbb;margin-bottom:5px}
-textarea.group-note{width:100%;min-height:54px;padding:7px 10px;border:1px solid #eee;border-radius:8px;font-size:13px;color:#111;background:#fafaf8;font-family:inherit;resize:vertical;outline:none;line-height:1.6}
-textarea.group-note:focus{border-color:#999;background:#fff}
-textarea.group-note::placeholder{color:#ccc}
-.group-note-meta{font-size:11px;color:#ccc;margin-top:4px}
-
-.group{margin-bottom:1.5rem}
-.group-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.group-title{font-size:15px;font-weight:500;color:#111;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;flex:1;padding:3px 6px;font-family:inherit}
-.group-title:hover{border-color:#eee;background:#fafaf8}
-.group-title:focus{border-color:#ddd;background:#fafaf8}
-.group-badge{font-size:11px;color:#aaa;background:#f5f5f0;padding:1px 7px;border-radius:10px;white-space:nowrap}
-.group-mini-bar{height:3px;border-radius:2px;background:#efefeb;margin-bottom:8px;overflow:hidden}
-.group-mini-fill{height:100%;border-radius:2px;background:#639922;transition:width 0.35s}
+/* 群組折疊 */
+.group{margin-bottom:8px;border:1px solid #f0f0ee;border-radius:12px;overflow:hidden}
+.group-header{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;background:#fafaf8;user-select:none}
+.group-header:hover{background:#f5f4f0}
+.chevron{width:16px;height:16px;flex-shrink:0;transition:transform 0.2s;color:#bbb}
+.group.open .chevron{transform:rotate(90deg)}
+.group-title{font-size:15px;font-weight:500;color:#111;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;flex:1;padding:2px 4px;font-family:inherit;cursor:text}
+.group-title:hover{border-color:#e0e0dc;background:#fff}
+.group-title:focus{border-color:#ccc;background:#fff}
+.group-badge{font-size:11px;color:#aaa;background:#ececea;padding:1px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.group-badge.all-done{background:#eaf3de;color:#3b6d11}
 .del-group-btn{width:22px;height:22px;border:none;background:transparent;color:#ccc;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;font-family:inherit}
 .del-group-btn:hover{background:#fff0f0;color:#c00}
 
-.todo-list{display:flex;flex-direction:column;gap:5px;margin-bottom:7px}
+.group-mini-bar{height:3px;background:#efefeb;overflow:hidden}
+.group-mini-fill{height:100%;background:#639922;transition:width 0.35s}
+
+.group-body{display:none;padding:10px 12px 12px}
+.group.open .group-body{display:block}
+
+.todo-list{display:flex;flex-direction:column;gap:5px;margin-bottom:8px}
 .todo-item{display:flex;align-items:center;gap:9px;padding:8px 10px;background:#fff;border:1px solid #f0f0ee;border-radius:8px;transition:opacity 0.2s}
 .todo-item.done{opacity:0.42}
 .todo-item.done .todo-text{text-decoration:line-through;color:#bbb}
@@ -61,14 +63,20 @@ textarea.group-note::placeholder{color:#ccc}
 .del-item-btn{width:20px;height:20px;border:none;background:transparent;color:#ccc;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;padding:0;font-family:inherit}
 .del-item-btn:hover{background:#fff0f0;color:#c00}
 
-.add-item-row{display:flex;gap:6px}
+.add-item-row{display:flex;gap:6px;margin-bottom:10px}
 .add-item-input{flex:1;height:32px;padding:0 10px;font-size:13px;border-radius:8px}
 .add-item-btn{height:32px;padding:0 12px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#666;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
 .add-item-btn:hover{background:#f5f5f0}
 
-.empty{font-size:13px;color:#ccc;padding:8px 0 4px;text-align:center}
+.group-note-wrap{border-top:1px solid #f0f0ee;padding-top:10px}
+.group-note-label{font-size:11px;color:#bbb;margin-bottom:5px}
+textarea.group-note{width:100%;min-height:50px;padding:7px 10px;border:1px solid #eee;border-radius:8px;font-size:13px;color:#111;background:#fafaf8;font-family:inherit;resize:vertical;outline:none;line-height:1.6}
+textarea.group-note:focus{border-color:#999;background:#fff}
+textarea.group-note::placeholder{color:#ccc}
+.group-note-meta{font-size:11px;color:#ccc;margin-top:4px}
+
+.empty{font-size:13px;color:#ccc;padding:1.5rem 0;text-align:center}
 .loading{font-size:13px;color:#ccc;padding:3rem 0;text-align:center}
-hr{border:none;border-top:1px solid #f0f0ee;margin:1.5rem 0}
 </style>
 </head>
 <body>
@@ -120,6 +128,10 @@ function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').rep
 function now(){ return new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}); }
 
 let snapshot = {};
+// 記住哪些群組是展開的（本機）
+let openGroups = new Set(JSON.parse(localStorage.getItem('open_groups')||'[]'));
+
+function saveOpen(){ localStorage.setItem('open_groups', JSON.stringify([...openGroups])); }
 
 onValue(groupsRef, (snap) => {
   dot.className = 'dot online';
@@ -133,16 +145,19 @@ onValue(groupsRef, (snap) => {
 
 function render(data){
   const groups = Object.entries(data).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
-
   const container = document.getElementById('groups-container');
   if(!groups.length){
     container.innerHTML = '<div class="empty">按右上角「新增標題」開始</div>';
     return;
   }
-  container.innerHTML = groups.map(([gid,g])=>groupHTML(gid,g)).join('<hr>');
-  groups.forEach(([gid])=>{
+  container.innerHTML = groups.map(([gid,g])=>groupHTML(gid,g)).join('');
+  groups.forEach(([gid,g])=>{
     const ta = document.getElementById('note-'+gid);
-    if(ta){ ta.value = ta.dataset.val || ''; document.getElementById('note-meta-'+gid).textContent = ta.dataset.meta || ''; }
+    if(ta){
+      ta.value = g.note||'';
+      const meta = document.getElementById('note-meta-'+gid);
+      if(meta) meta.textContent = g.noteBy ? '最後更新：'+g.noteBy+(g.noteAt?' '+g.noteAt:'') : '';
+    }
   });
 }
 
@@ -151,28 +166,33 @@ function groupHTML(gid, g){
   const done = items.filter(([,i])=>i.done).length;
   const total = items.length;
   const pct = total > 0 ? Math.round(done/total*100) : 0;
-  return `<div class="group">
-    <div class="group-header">
+  const allDone = total > 0 && done === total;
+  const isOpen = openGroups.has(gid);
+  return `<div class="group${isOpen?' open':''}" id="grp-${gid}">
+    <div class="group-header" onclick="toggleGroup(event,'${gid}')">
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5,3 11,8 5,13"/></svg>
       <input class="group-title" value="${esc(g.title||'')}" placeholder="標題…" maxlength="30"
+        onclick="event.stopPropagation()"
         onchange="renameGroup('${gid}',this.value)">
-      <span class="group-badge">${done}/${total}</span>
-      <button class="del-group-btn" onclick="delGroup('${gid}')">×</button>
+      <span class="group-badge${allDone?' all-done':''}">${done}/${total}</span>
+      <button class="del-group-btn" onclick="event.stopPropagation();delGroup('${gid}')">×</button>
     </div>
     <div class="group-mini-bar"><div class="group-mini-fill" style="width:${pct}%"></div></div>
-    <div class="todo-list">
-      ${items.length ? items.map(([iid,i])=>itemHTML(gid,iid,i)).join('') : ''}
-    </div>
-    <div class="add-item-row">
-      <input class="add-item-input" id="inp-${gid}" type="text" placeholder="新增項目…" maxlength="60"
-        onkeydown="if(event.key==='Enter') addItem('${gid}')">
-      <button class="add-item-btn" onclick="addItem('${gid}')">新增</button>
-    </div>
-    <div class="group-note-wrap">
-      <div class="group-note-label">目前進度</div>
-      <textarea class="group-note" id="note-${gid}" placeholder="寫下這個標題的進度說明…" maxlength="300"
-        oninput="onNoteInput('${gid}',this.value)" data-val="${esc(g.note||'')}"
-        data-meta="${g.noteBy?'最後更新：'+esc(g.noteBy)+(g.noteAt?' '+esc(g.noteAt):''):''}"></textarea>
-      <div class="group-note-meta" id="note-meta-${gid}"></div>
+    <div class="group-body">
+      <div class="todo-list">
+        ${items.length ? items.map(([iid,i])=>itemHTML(gid,iid,i)).join('') : '<div class="empty" style="padding:6px 0">還沒有項目</div>'}
+      </div>
+      <div class="add-item-row">
+        <input class="add-item-input" id="inp-${gid}" type="text" placeholder="新增項目…" maxlength="60"
+          onkeydown="if(event.key==='Enter') addItem('${gid}')">
+        <button class="add-item-btn" onclick="addItem('${gid}')">新增</button>
+      </div>
+      <div class="group-note-wrap">
+        <div class="group-note-label">目前進度</div>
+        <textarea class="group-note" id="note-${gid}" placeholder="寫下這個標題的進度說明…" maxlength="300"
+          oninput="onNoteInput('${gid}',this.value)"></textarea>
+        <div class="group-note-meta" id="note-meta-${gid}"></div>
+      </div>
     </div>
   </div>`;
 }
@@ -188,6 +208,15 @@ function itemHTML(gid, iid, item){
   </div>`;
 }
 
+window.toggleGroup = function(e, gid){
+  if(e.target.classList.contains('group-title')) return;
+  const el = document.getElementById('grp-'+gid);
+  if(!el) return;
+  if(openGroups.has(gid)){ openGroups.delete(gid); el.classList.remove('open'); }
+  else { openGroups.add(gid); el.classList.add('open'); }
+  saveOpen();
+};
+
 const noteDebounces = {};
 window.onNoteInput = function(gid, val){
   clearTimeout(noteDebounces[gid]);
@@ -198,7 +227,9 @@ window.onNoteInput = function(gid, val){
 
 window.addGroup = async function(){
   const order = Object.keys(snapshot).length;
-  await push(groupsRef, { title:'新標題', order, items:{} });
+  const newRef = await push(groupsRef, { title:'新標題', order, items:{} });
+  openGroups.add(newRef.key);
+  saveOpen();
   setTimeout(()=>{
     document.querySelectorAll('.group-title').forEach(el=>{
       if(el.value==='新標題'){ el.focus(); el.select(); }
@@ -212,6 +243,7 @@ window.renameGroup = async function(gid, val){
 
 window.delGroup = async function(gid){
   if(!confirm('確定刪除這個標題和裡面所有項目嗎？')) return;
+  openGroups.delete(gid); saveOpen();
   await remove(ref(db,'groups/'+gid));
 };
 
