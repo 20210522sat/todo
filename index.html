@@ -1,54 +1,84 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>共享代辦事項</title>
+<title>共享代辦清單</title>
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="代辦清單">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",sans-serif;background:#f5f5f0;min-height:100vh;display:flex;justify-content:center;padding:2rem 1rem}
-.card{background:#fff;border-radius:16px;border:1px solid #e5e5e0;padding:1.5rem;width:100%;max-width:480px;height:fit-content}
-.topbar{display:flex;align-items:center;gap:10px;margin-bottom:1rem}
-.app-title{font-size:18px;font-weight:500;color:#111;flex:1}
-.badge{background:#e6f1fb;color:#185fa5;font-size:12px;font-weight:500;padding:2px 9px;border-radius:12px;min-width:26px;text-align:center}
-.sync-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;font-size:12px;color:#888}
+.card{background:#fff;border-radius:16px;border:1px solid #e5e5e0;padding:1.5rem;width:100%;max-width:520px;height:fit-content}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;gap:8px}
+.app-title{font-size:18px;font-weight:500;color:#111}
+.add-group-btn{height:32px;padding:0 14px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#666;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:inherit}
+.add-group-btn:hover{background:#f5f5f0}
+
+.sync-bar{display:flex;align-items:center;gap:6px;margin-bottom:1rem;font-size:12px;color:#999}
 .dot{width:7px;height:7px;border-radius:50%;background:#ccc;flex-shrink:0;transition:background 0.3s}
 .dot.online{background:#639922}
 .dot.error{background:#e24b4a}
-.name-row{display:flex;align-items:center;gap:8px;margin-bottom:1rem}
-.name-label{font-size:13px;color:#888;white-space:nowrap}
-.name-input{height:30px;padding:0 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none;color:#111;background:#fff;width:130px}
-.name-input:focus{border-color:#888}
-.input-row{display:flex;gap:8px;margin-bottom:1.25rem}
-.task-input{flex:1;height:40px;padding:0 12px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;color:#111;background:#fff}
-.task-input:focus{border-color:#888}
-.add-btn{height:40px;padding:0 18px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#111;font-size:14px;cursor:pointer;white-space:nowrap;font-family:inherit}
-.add-btn:hover{background:#f5f5f0}
-.add-btn:active{transform:scale(0.97)}
-.section-label{font-size:11px;color:#aaa;font-weight:500;letter-spacing:0.05em;text-transform:uppercase;margin:1rem 0 8px}
-.todo-list{display:flex;flex-direction:column;gap:6px}
-.todo-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid #eee;border-radius:8px;transition:opacity 0.2s}
-.todo-item.done{opacity:0.45}
-.todo-item.done .todo-text{text-decoration:line-through;color:#aaa}
-.check-btn{width:21px;height:21px;border-radius:50%;border:1.5px solid #ccc;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;padding:0}
+
+.name-row{display:flex;align-items:center;gap:8px;margin-bottom:1.25rem}
+.name-label{font-size:13px;color:#999;white-space:nowrap}
+input[type=text]{border:1px solid #ddd;border-radius:8px;font-size:13px;outline:none;color:#111;background:#fff;font-family:inherit}
+input[type=text]:focus{border-color:#999}
+.name-input{height:30px;padding:0 10px;width:130px}
+
+.group-note-wrap{margin-top:10px;border-top:1px solid #f0f0ee;padding-top:10px}
+.group-note-label{font-size:11px;color:#bbb;margin-bottom:5px}
+textarea.group-note{width:100%;min-height:54px;padding:7px 10px;border:1px solid #eee;border-radius:8px;font-size:13px;color:#111;background:#fafaf8;font-family:inherit;resize:vertical;outline:none;line-height:1.6}
+textarea.group-note:focus{border-color:#999;background:#fff}
+textarea.group-note::placeholder{color:#ccc}
+.group-note-meta{font-size:11px;color:#ccc;margin-top:4px}
+
+.group{margin-bottom:1.5rem}
+.group-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.group-title{font-size:15px;font-weight:500;color:#111;background:transparent;border:1px solid transparent;border-radius:6px;outline:none;flex:1;padding:3px 6px;font-family:inherit}
+.group-title:hover{border-color:#eee;background:#fafaf8}
+.group-title:focus{border-color:#ddd;background:#fafaf8}
+.group-badge{font-size:11px;color:#aaa;background:#f5f5f0;padding:1px 7px;border-radius:10px;white-space:nowrap}
+.group-mini-bar{height:3px;border-radius:2px;background:#efefeb;margin-bottom:8px;overflow:hidden}
+.group-mini-fill{height:100%;border-radius:2px;background:#639922;transition:width 0.35s}
+.del-group-btn{width:22px;height:22px;border:none;background:transparent;color:#ccc;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;font-family:inherit}
+.del-group-btn:hover{background:#fff0f0;color:#c00}
+
+.todo-list{display:flex;flex-direction:column;gap:5px;margin-bottom:7px}
+.todo-item{display:flex;align-items:center;gap:9px;padding:8px 10px;background:#fff;border:1px solid #f0f0ee;border-radius:8px;transition:opacity 0.2s}
+.todo-item.done{opacity:0.42}
+.todo-item.done .todo-text{text-decoration:line-through;color:#bbb}
+.check-btn{width:19px;height:19px;border-radius:50%;border:1.5px solid #ccc;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0}
 .check-btn.checked{background:#eaf3de;border-color:#639922}
-.check-icon{width:10px;height:10px;stroke:#3b6d11;stroke-width:2.5;fill:none;display:none}
+.check-icon{width:9px;height:9px;stroke:#3b6d11;stroke-width:2.5;fill:none;display:none}
 .check-btn.checked .check-icon{display:block}
-.todo-text{flex:1;font-size:14px;color:#111;word-break:break-all;line-height:1.4}
-.meta{font-size:11px;color:#bbb;flex-shrink:0;text-align:right;line-height:1.4}
-.del-btn{width:26px;height:26px;border:none;background:transparent;color:#ccc;font-size:18px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;cursor:pointer;line-height:1;padding:0;font-family:inherit}
-.del-btn:hover{background:#fff0f0;color:#c00}
-.empty{font-size:13px;color:#bbb;padding:1.5rem 0;text-align:center}
-.clear-btn{margin-top:1rem;font-size:13px;color:#bbb;background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px;font-family:inherit}
-.clear-btn:hover{color:#c00}
-.loading{font-size:13px;color:#aaa;padding:2rem 0;text-align:center}
+.todo-text{flex:1;font-size:13px;color:#111;word-break:break-all;line-height:1.4}
+.item-meta{font-size:11px;color:#ccc;flex-shrink:0}
+.del-item-btn{width:20px;height:20px;border:none;background:transparent;color:#ccc;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;border-radius:4px;flex-shrink:0;padding:0;font-family:inherit}
+.del-item-btn:hover{background:#fff0f0;color:#c00}
+
+.add-item-row{display:flex;gap:6px}
+.add-item-input{flex:1;height:32px;padding:0 10px;font-size:13px;border-radius:8px}
+.add-item-btn{height:32px;padding:0 12px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#666;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.add-item-btn:hover{background:#f5f5f0}
+
+.empty{font-size:13px;color:#ccc;padding:8px 0 4px;text-align:center}
+.loading{font-size:13px;color:#ccc;padding:3rem 0;text-align:center}
+hr{border:none;border-top:1px solid #f0f0ee;margin:1.5rem 0}
 </style>
 </head>
 <body>
 <div class="card">
   <div class="topbar">
-    <span class="app-title">共享代辦事項</span>
-    <span class="badge" id="count">0</span>
+    <span class="app-title">共享代辦清單</span>
+    <button class="add-group-btn" onclick="addGroup()">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="1" x2="6" y2="11"/><line x1="1" y1="6" x2="11" y2="6"/></svg>
+      新增標題
+    </button>
   </div>
 
   <div class="sync-bar">
@@ -61,26 +91,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",sa
     <input class="name-input" id="user-name" type="text" placeholder="匿名" maxlength="12">
   </div>
 
-  <div class="input-row">
-    <input class="task-input" id="new-task" type="text" placeholder="新增任務…" maxlength="80">
-    <button class="add-btn" onclick="addTask()">新增</button>
-  </div>
-
-  <div id="todo-section">
-    <div class="section-label">待完成</div>
-    <div class="todo-list" id="todo-list"><div class="loading">載入中...</div></div>
-  </div>
-
-  <div id="done-section" style="display:none">
-    <div class="section-label">已完成</div>
-    <div class="todo-list" id="done-list"></div>
-    <button class="clear-btn" onclick="clearDone()">清除已完成</button>
-  </div>
+  <div id="groups-container"><div class="loading">載入中...</div></div>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, update, remove, onValue, query, orderByChild } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBkKAGUnB1YYzlaUHrNFQGZ7UDDWB9KCLQ",
@@ -94,88 +110,135 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-const todosRef = ref(db, 'todos');
+const groupsRef = ref(db, 'groups');
 
 const dot = document.getElementById('sync-dot');
 const syncLabel = document.getElementById('sync-label');
 
 function userName(){ return document.getElementById('user-name').value.trim() || '匿名'; }
-
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function now(){ return new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}); }
 
-function itemHTML(key, t){
-  const metaLine = [t.by, t.at].filter(Boolean).join(' ');
-  return `<div class="todo-item${t.done?' done':''}" id="item-${key}">
-    <button class="check-btn${t.done?' checked':''}" onclick="toggleTask('${key}',${!t.done})">
-      <svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
-    </button>
-    <span class="todo-text">${esc(t.text)}</span>
-    <span class="meta">${esc(metaLine)}</span>
-    <button class="del-btn" onclick="delTask('${key}')">×</button>
-  </div>`;
-}
+let snapshot = {};
 
-function render(tasks){
-  const todo = tasks.filter(([,t])=>!t.done).reverse();
-  const done = tasks.filter(([,t])=>t.done).reverse();
-
-  document.getElementById('count').textContent = todo.length;
-  document.getElementById('todo-list').innerHTML = todo.length
-    ? todo.map(([k,t])=>itemHTML(k,t)).join('')
-    : '<div class="empty">沒有待完成任務</div>';
-  document.getElementById('done-list').innerHTML = done.map(([k,t])=>itemHTML(k,t)).join('');
-  document.getElementById('done-section').style.display = done.length ? '' : 'none';
-}
-
-onValue(query(todosRef, orderByChild('createdAt')), (snapshot) => {
+onValue(groupsRef, (snap) => {
   dot.className = 'dot online';
   syncLabel.textContent = '即時同步中 — 所有人看到一樣的清單';
-  const val = snapshot.val() || {};
-  const tasks = Object.entries(val);
-  render(tasks);
-}, (err) => {
+  snapshot = snap.val() || {};
+  render(snapshot);
+}, () => {
   dot.className = 'dot error';
   syncLabel.textContent = '連線失敗，請重新整理';
 });
 
-window.addTask = async function(){
-  const input = document.getElementById('new-task');
+function render(data){
+  const groups = Object.entries(data).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+
+  const container = document.getElementById('groups-container');
+  if(!groups.length){
+    container.innerHTML = '<div class="empty">按右上角「新增標題」開始</div>';
+    return;
+  }
+  container.innerHTML = groups.map(([gid,g])=>groupHTML(gid,g)).join('<hr>');
+  groups.forEach(([gid])=>{
+    const ta = document.getElementById('note-'+gid);
+    if(ta){ ta.value = ta.dataset.val || ''; document.getElementById('note-meta-'+gid).textContent = ta.dataset.meta || ''; }
+  });
+}
+
+function groupHTML(gid, g){
+  const items = Object.entries(g.items||{}).sort((a,b)=>(a[1].order||0)-(b[1].order||0));
+  const done = items.filter(([,i])=>i.done).length;
+  const total = items.length;
+  const pct = total > 0 ? Math.round(done/total*100) : 0;
+  return `<div class="group">
+    <div class="group-header">
+      <input class="group-title" value="${esc(g.title||'')}" placeholder="標題…" maxlength="30"
+        onchange="renameGroup('${gid}',this.value)">
+      <span class="group-badge">${done}/${total}</span>
+      <button class="del-group-btn" onclick="delGroup('${gid}')">×</button>
+    </div>
+    <div class="group-mini-bar"><div class="group-mini-fill" style="width:${pct}%"></div></div>
+    <div class="todo-list">
+      ${items.length ? items.map(([iid,i])=>itemHTML(gid,iid,i)).join('') : ''}
+    </div>
+    <div class="add-item-row">
+      <input class="add-item-input" id="inp-${gid}" type="text" placeholder="新增項目…" maxlength="60"
+        onkeydown="if(event.key==='Enter') addItem('${gid}')">
+      <button class="add-item-btn" onclick="addItem('${gid}')">新增</button>
+    </div>
+    <div class="group-note-wrap">
+      <div class="group-note-label">目前進度</div>
+      <textarea class="group-note" id="note-${gid}" placeholder="寫下這個標題的進度說明…" maxlength="300"
+        oninput="onNoteInput('${gid}',this.value)" data-val="${esc(g.note||'')}"
+        data-meta="${g.noteBy?'最後更新：'+esc(g.noteBy)+(g.noteAt?' '+esc(g.noteAt):''):''}"></textarea>
+      <div class="group-note-meta" id="note-meta-${gid}"></div>
+    </div>
+  </div>`;
+}
+
+function itemHTML(gid, iid, item){
+  return `<div class="todo-item${item.done?' done':''}">
+    <button class="check-btn${item.done?' checked':''}" onclick="toggleItem('${gid}','${iid}',${!item.done})">
+      <svg class="check-icon" viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+    </button>
+    <span class="todo-text">${esc(item.text)}</span>
+    <span class="item-meta">${esc(item.by||'')} ${esc(item.at||'')}</span>
+    <button class="del-item-btn" onclick="delItem('${gid}','${iid}')">×</button>
+  </div>`;
+}
+
+const noteDebounces = {};
+window.onNoteInput = function(gid, val){
+  clearTimeout(noteDebounces[gid]);
+  noteDebounces[gid] = setTimeout(async ()=>{
+    await update(ref(db,'groups/'+gid), { note: val, noteBy: userName(), noteAt: now() });
+  }, 600);
+};
+
+window.addGroup = async function(){
+  const order = Object.keys(snapshot).length;
+  await push(groupsRef, { title:'新標題', order, items:{} });
+  setTimeout(()=>{
+    document.querySelectorAll('.group-title').forEach(el=>{
+      if(el.value==='新標題'){ el.focus(); el.select(); }
+    });
+  }, 300);
+};
+
+window.renameGroup = async function(gid, val){
+  await update(ref(db,'groups/'+gid), { title: val });
+};
+
+window.delGroup = async function(gid){
+  if(!confirm('確定刪除這個標題和裡面所有項目嗎？')) return;
+  await remove(ref(db,'groups/'+gid));
+};
+
+window.addItem = async function(gid){
+  const input = document.getElementById('inp-'+gid);
   const text = input.value.trim();
   if(!text) return;
   input.value = '';
-  await push(todosRef, {
-    text,
-    done: false,
-    by: userName(),
-    at: new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'}),
-    createdAt: Date.now()
+  const items = snapshot[gid]?.items || {};
+  const order = Object.keys(items).length;
+  await push(ref(db,'groups/'+gid+'/items'), {
+    text, done:false, by:userName(), at:now(), order
   });
-  input.focus();
+  setTimeout(()=>document.getElementById('inp-'+gid)?.focus(), 100);
 };
 
-window.toggleTask = async function(key, newVal){
-  await update(ref(db, 'todos/'+key), { done: newVal });
+window.toggleItem = async function(gid, iid, val){
+  await update(ref(db,'groups/'+gid+'/items/'+iid), { done: val });
 };
 
-window.delTask = async function(key){
-  await remove(ref(db, 'todos/'+key));
+window.delItem = async function(gid, iid){
+  await remove(ref(db,'groups/'+gid+'/items/'+iid));
 };
-
-window.clearDone = async function(){
-  const snap = await new Promise(res => onValue(todosRef, res, {onlyOnce:true}));
-  const val = snap.val() || {};
-  const updates = {};
-  Object.entries(val).forEach(([k,t])=>{ if(t.done) updates['todos/'+k]=null; });
-  if(Object.keys(updates).length) await update(ref(db), updates);
-};
-
-document.getElementById('new-task').addEventListener('keydown', e => {
-  if(e.key==='Enter') window.addTask();
-});
 
 const savedName = localStorage.getItem('todo_username');
 if(savedName) document.getElementById('user-name').value = savedName;
-document.getElementById('user-name').addEventListener('input', e => {
+document.getElementById('user-name').addEventListener('input', e=>{
   localStorage.setItem('todo_username', e.target.value);
 });
 </script>
